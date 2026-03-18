@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Countdown</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#7c5cfc" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Countdown" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+</head>
+<body>
+  <canvas id="particles"></canvas>
+
+  <!-- Theme toggle -->
+  <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
+    <span class="theme-icon">🌙</span>
+  </button>
+
+  <!-- Bottom controls: weather picker + simulation -->
+  <div class="bottom-controls">
+    <div class="weather-picker" id="weather-picker">
+      <button class="btn-w active" data-w="auto"   title="Auto — detect from location">🌐</button>
+      <button class="btn-w"        data-w="clear"  title="Clear">☀️</button>
+      <button class="btn-w"        data-w="cloudy" title="Cloudy">⛅</button>
+      <button class="btn-w"        data-w="rainy"  title="Rainy">🌧</button>
+      <button class="btn-w"        data-w="stormy" title="Stormy">⛈</button>
+      <button class="btn-w"        data-w="snowy"  title="Snowy">❄️</button>
+      <button class="btn-w"        data-w="foggy"  title="Foggy">🌫</button>
+      <div class="picker-divider"></div>
+      <button class="btn-w btn-w-random" data-w="random" title="Random weather">🎲</button>
+    </div>
+    <div class="sim-row">
+      <button class="btn-sim" id="btn-sim" title="Simulate day/night + weather cycle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Simulate
+      </button>
+      <span class="sim-clock" id="sim-clock"></span>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Setup Screen -->
+    <div class="screen" id="setup-screen">
+      <div class="setup-card">
+        <h1 class="logo">Countdown</h1>
+        <p class="subtitle">How long until your big day?</p>
+        <form id="setup-form">
+          <div class="field">
+            <label for="event-name">Event name</label>
+            <input type="text" id="event-name" placeholder="My big day" maxlength="40" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="event-date">Target date</label>
+            <input type="date" id="event-date" required />
+          </div>
+          <button type="submit" class="btn-start">Start Countdown</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Countdown Screen -->
+    <div class="screen hidden" id="countdown-screen">
+      <h2 class="event-title" id="display-title">My big day</h2>
+      <p class="event-date-label" id="display-date"></p>
+
+      <!-- Real-time clock + weather status -->
+      <div class="info-bar" id="info-bar">
+        <div class="clock-wrap">
+          <span class="clock-time" id="clock-time">--:--:--</span>
+          <span class="clock-ampm" id="clock-ampm">--</span>
+        </div>
+        <div class="weather-status" id="weather-status">
+          <span class="ws-icon" id="ws-icon">⋯</span>
+          <span class="ws-label" id="ws-label">Fetching weather…</span>
+          <span class="ws-temp" id="ws-temp"></span>
+        </div>
+      </div>
+
+      <div class="timer" id="timer">
+        <div class="unit">
+          <div class="flip-box" id="box-days">
+            <span class="num" id="num-days">00</span>
+          </div>
+          <span class="label">Days</span>
+        </div>
+        <div class="colon">:</div>
+        <div class="unit">
+          <div class="flip-box" id="box-hours">
+            <span class="num" id="num-hours">00</span>
+          </div>
+          <span class="label">Hours</span>
+        </div>
+        <div class="colon">:</div>
+        <div class="unit">
+          <div class="flip-box" id="box-minutes">
+            <span class="num" id="num-minutes">00</span>
+          </div>
+          <span class="label">Minutes</span>
+        </div>
+        <div class="colon">:</div>
+        <div class="unit">
+          <div class="flip-box" id="box-seconds">
+            <span class="num" id="num-seconds">00</span>
+          </div>
+          <span class="label">Seconds</span>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <p class="progress-label" id="progress-label"></p>
+
+      <!-- Quote card -->
+      <div class="quote-card" id="quote-card">
+        <div class="quote-loading" id="quote-loading">
+          <span class="spinner"></span>
+        </div>
+        <div class="quote-content hidden" id="quote-content">
+          <svg class="quote-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>
+          <p class="quote-text" id="quote-text"></p>
+          <p class="quote-author" id="quote-author"></p>
+        </div>
+        <button class="btn-quote-refresh" id="btn-quote-refresh" title="New quote">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg>
+        </button>
+      </div>
+
+      <!-- Notification banner -->
+      <div class="notif-banner hidden" id="notif-banner">
+        <span class="notif-icon">🔔</span>
+        <span class="notif-text">Get a daily motivational quote notification</span>
+        <button class="btn-notif-enable" id="btn-notif-enable">Enable</button>
+        <button class="btn-notif-dismiss" id="btn-notif-dismiss" title="Dismiss">✕</button>
+      </div>
+
+      <button class="btn-reset" id="btn-reset">Change date</button>
+    </div>
+
+    <!-- Done Screen -->
+    <div class="screen hidden" id="done-screen">
+      <div class="done-card">
+        <div class="done-icon">🎉</div>
+        <h2 class="done-title" id="done-title">It's here!</h2>
+        <p class="done-sub" id="done-sub"></p>
+        <button class="btn-reset" id="btn-reset-done">Start over</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

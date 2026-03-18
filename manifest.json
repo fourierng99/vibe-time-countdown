@@ -1,0 +1,33 @@
+{
+  "name": "Countdown — Day Tracker",
+  "short_name": "Countdown",
+  "description": "Count down to your big day with daily motivation quotes.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#7c5cfc",
+  "background_color": "#080810",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["productivity", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "My Countdown",
+      "url": "./index.html",
+      "description": "Open your active countdown"
+    }
+  ]
+}
